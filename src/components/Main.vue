@@ -1,36 +1,34 @@
 <template>
-  <section class="border-2 border-black px-12 py-20">
-    <div class="sm:flex">
+  <section class="w-full xl:w-3/4 mx-auto border-2 border-black">
+    <div class="lg:flex items-center justify-around">
       <!-- dealer -->
       <div class="mt-4 sm:m-4">
         <h2>Dealer: <span v-if="!canHit">{{ dealerPts }}</span><span v-else>{{ dealerPts - dealerHiddenValue }}</span>
         </h2>
-        <div class="flex">
-          <img :src="dealerHiddenCardImgSrc" alt="" height="175" width="125" class="p-1" />
+        <div class="sm:flex">
+          <img :src="dealerHiddenCardImgSrc" alt="" height="175" width="125" class="p-1 mx-auto inline-block" />
           <img v-for="i in dealerCardImgSrc.length" :key="i" :src="dealerCardImgSrc[i - 1]" alt="" height="175"
-            width="125" class="p-1" />
-          <!-- cards -->
+            width="125" class="p-1 mx-auto inline-block" />
         </div>
       </div>
 
       <!-- Player -->
       <div class="mt-4 sm:m-4">
         <h2>Player: {{ playerPts }}</h2>
-        <div class="flex">
+        <div class="sm:flex">
           <img v-for="i in playerCardImgSrc.length" :key="i" :src="playerCardImgSrc[i - 1]" alt="" height="175"
-            width="125" class="p-1">
-          <!-- cards -->
+            width="125" class="p-1 mx-auto inline-block">
         </div>
       </div>
     </div>
     <!-- result -->
     <div class="mt-4">
       <button @click="hit();" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
-        class="btn w-full sm:w-1/4 m-2">Hit</button>
+        class="btn w-full sm:w-1/4 mt-2 sm:m-2">Hit</button>
       <button @click="double();" :disabled="true" :class="true ? 'disabled' : ''"
-        class="btn w-full sm:w-1/4 m-2">Double</button>
-      <button @click="stay()" class="btn w-full sm:w-1/4 m-2">Stay</button>
-      <h3>{{ result }}</h3>
+        class="btn w-full sm:w-1/4 mt-2 sm:m-2">Double</button>
+      <button @click="stay()" class="btn w-full sm:w-1/4 mt-2 sm:m-2">Stay</button>
+      <h3 class="mt-4 sm:mt-0">{{ result }}</h3>
     </div>
   </section>
 </template>
@@ -48,7 +46,7 @@ export default defineComponent({
       playerCardsOnField: number = 0;
     let cardImgTopSrc: string = "/src/assets/cards/",
       dealerHiddenCardImgSrc: string = "/src/assets/cards/BACK.png",
-      result: string = "Ongoing";
+      result: string = "";
     let dealerCardImgSrc: string[] = [],
       playerCardImgSrc: string[] = [],
       deck: string[] = [];
