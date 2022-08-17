@@ -128,20 +128,26 @@ export default defineComponent({
       let card: string | undefined = "";
 
       this.hidden = this.deck.pop();
+
+      if (this.hidden == undefined) { // prevents site crash, when game resets
+        console.error("hidden is undefined", this.hidden);
+        // deck MUST be cleard, or infinite loop will trigge
+        this.deck = []; // clear deck
+        this.buildDeck(); // create new
+        this.shuffleDeck();
+        this.startGame(); // restart
+      }
+
       // reckon with the hidden value right from the start
       this.dealerHiddenValue = this.getValue(this.hidden);
-      console.log(this.dealerHiddenValue);
       this.dealerPts = this.getValue(this.hidden);
       this.dealerAceCount = this.checkAce(this.hidden);
 
       while (this.dealerPts < 17) {
-        card = this.deck.pop(); // cut first value
 
-        if (card == undefined) {
-          console.error("card is undefined", card);
-          this.startGame(); // restart
-          return 0;
-        }
+        do {
+          card = this.deck.pop(); // cut first value
+        } while (card == undefined);  // prevents loading crash
 
         this.dealerCardImgSrc[i] = this.cardImgTopSrc + card + ".png";  // add cardSrc
         this.dealerPts += this.getValue(card);  // adds value of card to dealers points
@@ -150,13 +156,10 @@ export default defineComponent({
       }
 
       for (i = this.playerCardsOnField; i < 2; i++) { // player begins with two cards
-        card = this.deck.pop(); // cut first value
 
-        if (card == undefined) {
-          console.error("card is undefined", card);
-          this.startGame(); // restart
-          return 0;
-        }
+        do {
+          card = this.deck.pop(); // cut first value
+        } while (card == undefined);  // prevents loading crash
 
         this.playerCardImgSrc[i] = this.cardImgTopSrc + card + ".png";  // add cardSrc
         this.playerPts += this.getValue(card);  // adds value of card to dealers points
@@ -226,16 +229,12 @@ export default defineComponent({
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
 
       let msg: string = "";
-      if (this.playerPts > 21) {  // even if dealer is also over 21, you still lose
+      if (this.playerPts > 21 || this.playerPts < this.dealerPts) {  // even if dealer is also over 21, you still lose
         msg = "You Lose!";
-      } else if (this.dealerPts > 21) {
+      } else if (this.dealerPts > 21 || this.playerPts > this.dealerPts) {
         msg = "You Win!";
       } else if (this.playerPts == this.dealerPts) {
         msg = "Tie!";
-      } else if (this.playerPts > this.dealerPts) {
-        msg = "You Win!";
-      } else if (this.playerPts < this.dealerPts) {
-        msg = "You Lose!";
       } else {
         console.error("Unknown Error");
       }
