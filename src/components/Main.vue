@@ -1,39 +1,42 @@
 <template>
-  <section class="w-full xl:w-3/4 mx-auto border-2 border-black">
-    <div class="lg:flex items-center justify-around">
-      <!-- dealer -->
-      <div class="mt-4 sm:m-4">
-        <h2>Dealer: <span v-if="!canHit">{{ dealerPts }}</span><span v-else>{{ dealerPts - dealerHiddenValue }}</span>
-        </h2>
-        <div class="sm:flex">
-          <img :src="dealerHiddenCardImgSrc" alt="" height="175" width="125" class="p-1 mx-auto inline-block" />
-          <img v-for="i in dealerCardImgSrc.length" :key="i" :src="dealerCardImgSrc[i - 1]" alt="" height="175"
-            width="125" class="p-1 mx-auto inline-block" />
+  <section class="w-full xl:w-3/4 mx-auto px-2 py-12">
+    <section class="border-2 border-black">
+      <div class="lg:flex items-center justify-around">
+        <!-- dealer -->
+        <div class="mt-4 sm:m-4">
+          <h2>Dealer: <span v-if="!canHit">{{ dealerPts }}</span><span v-else>{{ dealerPts - dealerHiddenValue }}</span>
+          </h2>
+          <div class="sm:flex">
+            <img :src="dealerHiddenCardImgSrc" alt="" height="175" width="125" class="p-1 mx-auto inline-block" />
+            <img v-for="i in dealerCardImgSrc.length" :key="i" :src="dealerCardImgSrc[i - 1]" alt="" height="175"
+              width="125" class="p-1 mx-auto inline-block" />
+          </div>
         </div>
-      </div>
 
-      <!-- Player -->
-      <div class="mt-4 sm:m-4">
-        <h2>Player: {{ playerPts }}</h2>
-        <div class="sm:flex">
-          <img v-for="i in playerCardImgSrc.length" :key="i" :src="playerCardImgSrc[i - 1]" alt="" height="175"
-            width="125" class="p-1 mx-auto inline-block">
+        <!-- Player -->
+        <div class="mt-4 sm:m-4">
+          <h2>Player: {{ playerPts }}</h2>
+          <div class="sm:flex">
+            <img v-for="i in playerCardImgSrc.length" :key="i" :src="playerCardImgSrc[i - 1]" alt="" height="175"
+              width="125" class="p-1 mx-auto inline-block">
+          </div>
         </div>
       </div>
-    </div>
-    <!-- result -->
-    <div class="mt-4">
-      <button @click="play(1);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
-        class="btn w-full sm:w-1/4 mt-2 sm:m-2">Hit</button>
-      <button @click="play(2);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
-        class="btn w-full sm:w-1/4 mt-2 sm:m-2">Double</button>
-      <button @click="stay()" class="btn w-full sm:w-1/4 mt-2 sm:m-2">Stay</button>
-      <h3 class="mt-4 sm:mt-0">{{ result }}</h3>
-    </div>
+      <!-- result -->
+      <div class="mt-4">
+        <button @click="play(1);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
+          class="btn w-full sm:w-1/4 mt-2 sm:m-2">Hit</button>
+        <button @click="play(2);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
+          class="btn w-full sm:w-1/4 mt-2 sm:m-2">Double</button>
+        <button @click="stay()" class="btn w-full sm:w-1/4 mt-2 sm:m-2">Stay</button>
+        <h3 class="mt-4 sm:mt-0">{{ result }}</h3>
+      </div>
+    </section>
   </section>
 </template>
 
 <script lang="ts">
+/* https://www.youtube.com/watch?v=bMYCWccL-3U */
 import { defineComponent } from "vue";
 
 export default defineComponent({
