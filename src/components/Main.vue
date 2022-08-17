@@ -1,10 +1,10 @@
 <template>
   <!-- popup -->
   <div v-if="showPopup">
-    <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-40">
-      <div @click="reset()" class="absolute top-0 bottom-0 left-0 right-0 z-50"></div>
+    <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-30">
+      <div @click="reset()" class="absolute top-0 bottom-0 left-0 right-0 z-40"></div>
     </section>
-    <div class="w-full md:w-1/2 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-50">
+    <div class="w-full md:w-1/2 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-40">
       <div class="flex h-full">
         <div class="flex flex-col m-auto bg-gray-300 p-8 rounded-2xl shadow-2xl">
           <h3>{{ result }}</h3>
@@ -16,7 +16,12 @@
 
   <!-- section -->
   <section class="w-full xl:w-3/4 mx-auto px-2 py-12">
-    <div class="border-2 border-black">
+    <div class="relative border-2 border-black">
+      <section v-if="restructure" class="restructure absolute w-full h-full z-30">
+        <p class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-white">
+          please wait a moment
+        </p>
+      </section>
       <div class="lg:flex items-center justify-around">
         <!-- dealer -->
         <div class="mt-4 sm:m-4">
@@ -70,7 +75,8 @@ export default defineComponent({
       deck: string[] = [];
     let hidden: any = "";
     let canHit: boolean = true,
-      showPopup: boolean = false;
+      showPopup: boolean = false,
+      restructure: boolean = false;
 
     return {
       dealerPts,
@@ -88,6 +94,7 @@ export default defineComponent({
       hidden,
       canHit,
       showPopup,
+      restructure,
     }
   },
   setup() { },
@@ -260,15 +267,24 @@ export default defineComponent({
       this.playerCardImgSrc = [];
       this.hidden = "";
       this.canHit = true;
+      this.restructure = true;
 
       this.shuffleDeck();
       this.startGame();
 
       this.togglePopup();
+
+      setTimeout(() => {
+        this.restructure = false;
+      }, 300);  // wait, for new cards
     },
   },
 });
 </script>
 
 <style scoped>
+.restructure {
+  background-color: #818181;
+  opacity: .8;
+}
 </style>
