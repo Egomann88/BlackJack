@@ -13,3 +13,11 @@ h2 {
 h3 {
   @apply text-2xl font-medium;
 }
+
+.disabled {
+  @apply opacity-50;
+}
+
+.btn {
+  @apply px-4 py-2 bg-gray-400 text-center shadow-md rounded-xl inline-block transition focus:outline-none focus:ring-2 focus:ring-opacity-75;
+}
