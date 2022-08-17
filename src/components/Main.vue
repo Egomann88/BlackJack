@@ -23,9 +23,9 @@
     </div>
     <!-- result -->
     <div class="mt-4">
-      <button @click="hit();" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
+      <button @click="play(1);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
         class="btn w-full sm:w-1/4 mt-2 sm:m-2">Hit</button>
-      <button @click="double();" :disabled="true" :class="true ? 'disabled' : ''"
+      <button @click="play(2);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
         class="btn w-full sm:w-1/4 mt-2 sm:m-2">Double</button>
       <button @click="stay()" class="btn w-full sm:w-1/4 mt-2 sm:m-2">Stay</button>
       <h3 class="mt-4 sm:mt-0">{{ result }}</h3>
@@ -110,17 +110,17 @@ export default defineComponent({
 
       this.hidden = this.deck.pop();
       // reckon with the hidden value right from the start
-      this.dealerHiddenValue += this.getValue(this.hidden);
-      this.dealerHiddenValue += this.checkAce(this.hidden);
-      this.dealerPts += this.getValue(this.hidden);
-      this.dealerAceCount += this.checkAce(this.hidden);
+      this.dealerHiddenValue = this.getValue(this.hidden);
+      console.log(this.dealerHiddenValue);
+      this.dealerPts = this.getValue(this.hidden);
+      this.dealerAceCount = this.checkAce(this.hidden);
 
       while (this.dealerPts < 17) {
-        //<img>
         card = this.deck.pop(); // cut first value
 
         if (card == undefined) {
           console.error("card is undefined", card);
+          this.startGame(); // restart
           return 0;
         }
 
@@ -130,14 +130,12 @@ export default defineComponent({
         i++;
       }
 
-      console.log(this.hidden);
-      console.log(this.dealerPts);
-
       for (i = this.playerCardsOnField; i < 2; i++) { // player begins with two cards
         card = this.deck.pop(); // cut first value
 
         if (card == undefined) {
           console.error("card is undefined", card);
+          this.startGame(); // restart
           return 0;
         }
 
@@ -180,9 +178,9 @@ export default defineComponent({
       return playerPts;
     },
 
-    hit() {
+    play(mult: number) {
       if (!this.canHit) {
-        alert('Sie können nicht mehr weiterspielen.');
+        alert('You cannot play anymore.');
         return 0;
       }
 
@@ -194,32 +192,10 @@ export default defineComponent({
       }
 
       this.playerCardImgSrc[this.playerCardsOnField++] = this.cardImgTopSrc + card + ".png";  // add cardSrc
-      this.playerPts += this.getValue(card);  // adds value of card to dealers points
-      this.playerAceCount = this.checkAce(card);  // check if aces exists
+      this.playerPts += this.getValue(card) * mult;  // adds value of card to dealers points
+      this.playerAceCount = this.checkAce(card) * mult;  // check if aces exists
 
-      if (this.reduceAce(this.playerPts, this.playerAceCount) > 21) {
-        this.canHit = false;
-      }
-    },
-
-    double() {
-      if (!this.canHit) {
-        alert('Sie können nicht mehr weiterspielen.');
-        return 0;
-      }
-
-      let card: string | undefined = this.deck.pop(); // cut first value
-
-      if (card == undefined) {
-        console.error("card is undefined", card);
-        return 0;
-      }
-
-      this.playerCardImgSrc[this.playerCardsOnField++] = this.cardImgTopSrc + card + ".png";  // add cardSrc
-      this.playerPts += this.getValue(card);  // adds value of card to dealers points
-      this.playerAceCount = this.checkAce(card);  // check if aces exists
-
-      if (this.reduceAce(this.playerPts, this.playerAceCount) > 21) {
+      if (this.reduceAce(this.playerPts, this.playerAceCount) > 21 || mult == 2) {
         this.canHit = false;
       }
     },
@@ -231,10 +207,9 @@ export default defineComponent({
       this.canHit = false;
 
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
-      // console.log("stay");
 
       let msg: string = "";
-      if (this.playerPts > 21) {
+      if (this.playerPts > 21) {  // even if dealer is also over 21, you still lose
         msg = "You Lose!";
       } else if (this.dealerPts > 21) {
         msg = "You Win!";
