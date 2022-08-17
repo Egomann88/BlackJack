@@ -1,6 +1,22 @@
 <template>
+  <!-- popup -->
+  <div v-if="showPopup">
+    <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-40">
+      <div @click="reset()" class="absolute top-0 bottom-0 left-0 right-0 z-50"></div>
+    </section>
+    <div class="w-full md:w-1/2 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-50">
+      <div class="flex h-full">
+        <div class="flex flex-col m-auto bg-gray-300 p-8 rounded-2xl shadow-2xl">
+          <h3>{{ result }}</h3>
+          <button @click="reset()" class="btn mt-6 border-2 border-black tracking-widest">O.K</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- section -->
   <section class="w-full xl:w-3/4 mx-auto px-2 py-12">
-    <section class="border-2 border-black">
+    <div class="border-2 border-black">
       <div class="lg:flex items-center justify-around">
         <!-- dealer -->
         <div class="mt-4 sm:m-4">
@@ -29,9 +45,8 @@
         <button @click="play(2);" :disabled="!canHit" :class="!canHit ? 'disabled' : ''"
           class="btn w-full sm:w-1/4 mt-2 sm:m-2">Double</button>
         <button @click="stay()" class="btn w-full sm:w-1/4 mt-2 sm:m-2">Stay</button>
-        <h3 class="mt-4 sm:mt-0">{{ result }}</h3>
       </div>
-    </section>
+    </div>
   </section>
 </template>
 
@@ -53,9 +68,9 @@ export default defineComponent({
     let dealerCardImgSrc: string[] = [],
       playerCardImgSrc: string[] = [],
       deck: string[] = [];
-
     let hidden: any = "";
-    let canHit: boolean = true;
+    let canHit: boolean = true,
+      showPopup: boolean = false;
 
     return {
       dealerPts,
@@ -72,6 +87,7 @@ export default defineComponent({
       deck,
       hidden,
       canHit,
+      showPopup,
     }
   },
   setup() { },
@@ -207,8 +223,6 @@ export default defineComponent({
       this.dealerPts = this.reduceAce(this.dealerPts, this.dealerAceCount);
       this.playerPts = this.reduceAce(this.playerPts, this.playerAceCount);
 
-      this.canHit = false;
-
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
 
       let msg: string = "";
@@ -227,6 +241,31 @@ export default defineComponent({
       }
 
       this.result = msg;
+
+      this.togglePopup();
+    },
+
+    async togglePopup() {
+      this.showPopup = !this.showPopup;
+    },
+
+    reset() {
+      this.dealerPts = 0;
+      this.playerPts = 0;
+      this.dealerAceCount = 0;
+      this.playerAceCount = 0;
+      this.dealerHiddenValue = 0;
+      this.playerCardsOnField = 0;
+      this.dealerHiddenCardImgSrc = "/src/assets/cards/BACK.png";
+      this.dealerCardImgSrc = [];
+      this.playerCardImgSrc = [];
+      this.hidden = "";
+      this.canHit = true;
+
+      this.shuffleDeck();
+      this.startGame();
+
+      this.togglePopup();
     },
   },
 });
