@@ -245,7 +245,7 @@ export default defineComponent({
         return 0;
       }
 
-      let card: string | undefined = this.deck.pop(); // cut first value
+      let card: string | undefined = this.deck.pop(); // cut last value
 
       if (card == undefined) {
         console.error("card is undefined", card);
@@ -278,6 +278,7 @@ export default defineComponent({
       this.dealerPts > 21 ? this.reduceAce(this.dealerPts, this.dealerAceCount) : this.dealerPts; // reduces Points, if nessesary
       this.playerPts > 21 ? this.reduceAce(this.playerPts, this.playerAceCount) : this.playerPts; // reduces Points, if nessesary
 
+      this.canHit = false;  // show true value of dealer
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
 
       let msg: string = "";
