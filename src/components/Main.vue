@@ -14,6 +14,9 @@
     </div>
   </div>
 
+  <!-- sidebar -->
+  <Rules />
+
   <!-- section -->
   <section class="w-full xl:w-3/4 mx-auto px-2 py-12">
     <div class="relative border-2 border-black">
@@ -58,8 +61,12 @@
 <script lang="ts">
 /* https://www.youtube.com/watch?v=bMYCWccL-3U */
 import { defineComponent } from "vue";
+import Rules from "./Rules.vue";
 
 export default defineComponent({
+  components: {
+    Rules,
+  },
   data() {
     let dealerPts: number = 0,
       playerPts: number = 0,
