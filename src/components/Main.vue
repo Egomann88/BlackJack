@@ -105,7 +105,7 @@ export default defineComponent({
   },
   methods: {
     /**
-     * filles the player's deck with all cards
+     * filles the deck with all cards
      */
     buildDeck() {
       const cardValues = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -130,6 +130,14 @@ export default defineComponent({
       }
     },
 
+    /**
+     * declaires all cards of the dealer (pulls cards until he reaches a value over equal 17 [with hidden cards])
+     * @func buildDeck is called to rebuild deck, if it wasn't created properly
+     * @func shuffleDeck shuffels the deck new
+     * @func startGame restarts the function, if something was misdone
+     * @func getValue adds the Value of the card to the max points
+     * @func checkAce adds if an ace was drawn
+     */
     startGame() {
       let i: number = 0;
       let card: string | undefined = "";
@@ -137,49 +145,47 @@ export default defineComponent({
       this.hidden = this.deck.pop();
 
       if (this.hidden == undefined) { // prevents site crash, when game resets
-        console.error("hidden is undefined", this.hidden);
-        // deck MUST be cleard, or infinite loop will trigge
-        this.deck = []; // clear deck
-        this.buildDeck(); // create new
-        this.shuffleDeck();
-        this.startGame(); // restart
+        console.error("fatal error: hidden is undefined", this.hidden);
+        this.reset(); // restart
       }
 
       // reckon with the hidden value right from the start
-      this.dealerHiddenValue = this.getValue(this.hidden);
-      this.dealerPts = this.getValue(this.hidden);
-      this.dealerAceCount = this.checkAce(this.hidden);
+      this.dealerHiddenValue += this.getValue(this.hidden);
+      this.dealerPts += this.getValue(this.hidden);
+      this.dealerAceCount += this.checkAce(this.hidden);
 
       while (this.dealerPts < 17) {
 
         do {
-          card = this.deck.pop(); // cut first value
+          card = this.deck.pop(); // cut last value
         } while (card == undefined);  // prevents loading crash
 
         this.dealerCardImgSrc[i] = this.cardImgTopSrc + card + ".png";  // add cardSrc
         this.dealerPts += this.getValue(card);  // adds value of card to dealers points
-        this.dealerAceCount = this.checkAce(card);  // check if aces exists
+        this.dealerAceCount += this.checkAce(card);  // check if aces exists
         i++;
       }
 
       for (i = this.playerCardsOnField; i < 2; i++) { // player begins with two cards
 
         do {
-          card = this.deck.pop(); // cut first value
+          card = this.deck.pop(); // cut last value
         } while (card == undefined);  // prevents loading crash
 
         this.playerCardImgSrc[i] = this.cardImgTopSrc + card + ".png";  // add cardSrc
         this.playerPts += this.getValue(card);  // adds value of card to dealers points
-        this.playerAceCount = this.checkAce(card);  // check if aces exists
+        this.playerAceCount += this.checkAce(card);  // check if aces exists
         this.playerCardsOnField = i + 1;
       }
     },
 
-    getValue(card: string) {
-      let data = card.split("-");
-      let value = data[0];
-
-      switch (value) {
+    /**
+     * checks the value of the card and returns it
+     * @param {string} card full name of the card
+     * @returns number -> value of card
+     */
+    getValue(card: string): number {
+      switch (card[0]) {  // is first diggit A, J, Q or K
         case "A":
           return 11;
         case "J":
@@ -188,17 +194,31 @@ export default defineComponent({
           return 10;
       }
 
-      return parseInt(value);
+      return parseInt(card[0]);
     },
 
-    checkAce(card: string) {
-      if (card[0] == "A") {
+    /**
+     * Checks if the card is an ace, if yes returns an 1
+     * @param card full name of card
+     * @returns 1 if is an a ace / 0 when not
+     */
+    checkAce(card: string): number {
+
+      if (card[0] == "A") { // A-D, A-S, K-D, 10-S,...
         return 1;
       }
       return 0;
     },
 
-    reduceAce(playerPts: number, playerAceCount: number) {
+    /**
+     * checks, if the playersPts are more than 21 and he has one or more aces
+     * if so, the player loses 10 Pts (11 - 10) for the alternate value of ace
+     * 
+     * @param playerPts all points of the player 
+     * @param playerAceCount all the aces the player has
+     * @returns number -> playerPts 
+     */
+    reduceAce(playerPts: number, playerAceCount: number): number {
       while (playerPts > 21 && playerAceCount > 0) {
         playerPts -= 10;
         playerAceCount -= 1;
@@ -207,7 +227,19 @@ export default defineComponent({
       return playerPts;
     },
 
-    play(mult: number) {
+    /**
+     * As first, it checks if the player is still able to draw cards.
+     * Then it draws a new Card
+     * Deaktivates the Hit Button is nessesary 
+     * 
+     * @func play restart the function 
+     * @func adds the Value of the card to the max points
+     * @func checkAce adds if an ace was drawn
+     * @func reduceAce 
+     * @param { number } mult
+     * @returns number
+     */
+    play(mult: number): number {
       if (!this.canHit) {
         alert('You cannot play anymore.');
         return 0;
@@ -217,6 +249,7 @@ export default defineComponent({
 
       if (card == undefined) {
         console.error("card is undefined", card);
+        this.play(mult);  // restart func
         return 0;
       }
 
@@ -224,24 +257,40 @@ export default defineComponent({
       this.playerPts += this.getValue(card) * mult;  // adds value of card to dealers points
       this.playerAceCount = this.checkAce(card) * mult;  // check if aces exists
 
-      if (this.reduceAce(this.playerPts, this.playerAceCount) > 21 || mult == 2) {
+      if (this.playerPts > 21) {  // if playerPts is over 21, reduce the ace value (if possible)
+        this.playerPts = this.reduceAce(this.playerPts, this.playerAceCount);
+        this.playerAceCount = 0;
+      }
+
+      if (this.playerPts > 21 || mult == 2) {  // if playerpts over 21 or doubled 
         this.canHit = false;
       }
+      return 1;
     },
 
-    stay() {
-      this.dealerPts = this.reduceAce(this.dealerPts, this.dealerAceCount);
-      this.playerPts = this.reduceAce(this.playerPts, this.playerAceCount);
+    /**
+     * Reduces Ace values if needed, reveals hidden card value and declares if player won or not
+     * 
+     * @func reduceAce reducesAce value if needed
+     * @func togglePopup shows won / lose Popup
+     */
+    stay(): void {
+      this.dealerPts > 21 ? this.reduceAce(this.dealerPts, this.dealerAceCount) : this.dealerPts; // reduces Points, if nessesary
+      this.playerPts > 21 ? this.reduceAce(this.playerPts, this.playerAceCount) : this.playerPts; // reduces Points, if nessesary
 
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
 
       let msg: string = "";
-      if (this.playerPts > 21 || this.playerPts < this.dealerPts) {  // even if dealer is also over 21, you still lose
+      if (this.playerPts > 21) {  // even if dealer is also over 21, you still lose
         msg = "You Lose!";
-      } else if (this.dealerPts > 21 || this.playerPts > this.dealerPts) {
+      } else if (this.dealerPts > 21) {
         msg = "You Win!";
       } else if (this.playerPts == this.dealerPts) {
         msg = "Tie!";
+      } else if (this.playerPts < this.dealerPts) {
+        msg = "You Lose!";
+      } else if (this.playerPts > this.dealerPts) {
+        msg = "You Win!";
       } else {
         console.error("Unknown Error");
       }
@@ -251,11 +300,22 @@ export default defineComponent({
       this.togglePopup();
     },
 
+    /**
+     * Toggles won / lose Popup
+     */
     async togglePopup() {
       this.showPopup = !this.showPopup;
     },
 
-    reset() {
+    /**
+     * sets all variabels to default and restarts all functions
+     * @func buildDeck refills the deck
+     * @func shuffleDeck shuffle the deck
+     * @func startGame gives dealer and player starter cards
+     * @func togglePopup disables / hides  Popup
+     */
+    reset(): void {
+      // sets variables to default
       this.dealerPts = 0;
       this.playerPts = 0;
       this.dealerAceCount = 0;
@@ -267,15 +327,17 @@ export default defineComponent({
       this.playerCardImgSrc = [];
       this.hidden = "";
       this.canHit = true;
-      this.restructure = true;
+      this.restructure = true;  // show loading / restructure screen 
 
-      this.shuffleDeck();
+      this.deck = []; // clear deck
+      this.buildDeck(); // refills the deck
+      this.shuffleDeck(); // shuffle new
       this.startGame();
 
-      this.togglePopup();
+      this.togglePopup(); // disables / hides  Popup
 
       setTimeout(() => {
-        this.restructure = false;
+        this.restructure = false;  // show loading / restructure screen 
       }, 300);  // wait, for new cards
     },
   },
