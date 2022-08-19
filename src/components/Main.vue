@@ -1,12 +1,12 @@
 <template>
-  <!-- popup -->
+  <!-- Result - popup -->
   <div v-if="showPopup">
     <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-30">
       <div @click="reset()" class="absolute top-0 bottom-0 left-0 right-0 z-40"></div>
     </section>
     <div class="w-full md:w-1/2 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-40">
       <div class="flex h-full">
-        <div class="flex flex-col m-auto bg-gray-300 p-8 rounded-2xl shadow-2xl">
+        <div :class="doubleBlackJck" class="flex flex-col m-auto bg-gray-300 p-8 rounded-2xl shadow-2xl">
           <h3>{{ result }}</h3>
           <button @click="reset()" class="btn mt-6 border-2 border-black tracking-widest">O.K</button>
         </div>
@@ -74,13 +74,18 @@ export default defineComponent({
       playerAceCount: number = 0,
       dealerHiddenValue: number = 0,
       playerCardsOnField: number = 0;
+
     let cardImgTopSrc: string = "/src/assets/cards/",
       dealerHiddenCardImgSrc: string = "/src/assets/cards/BACK.png",
-      result: string = "";
+      result: string = "",
+      doubleBlackJck: string = "";
+
     let dealerCardImgSrc: string[] = [],
       playerCardImgSrc: string[] = [],
       deck: string[] = [];
+
     let hidden: any = "";
+
     let canHit: boolean = true,
       showPopup: boolean = false,
       restructure: boolean = false;
@@ -95,6 +100,7 @@ export default defineComponent({
       cardImgTopSrc,
       dealerHiddenCardImgSrc,
       result,
+      doubleBlackJck,
       dealerCardImgSrc,
       playerCardImgSrc,
       deck,
@@ -289,12 +295,20 @@ export default defineComponent({
       this.dealerHiddenCardImgSrc = this.cardImgTopSrc + this.hidden + ".png"; // hidden img
 
       let msg: string = "";
-      if (this.playerPts > 21) {  // even if dealer is also over 21, you still lose
+      if ((this.playerPts == 21 || this.dealerPts == 21) && this.playerPts != this.dealerPts) {
+        msg = "Blackjack! ";
+        this.playerPts != 21 ? msg += "You Lose!" : msg += "You Win!";
+      } else if (this.playerPts > 21) {  // even if dealer is also over 21, you still lose
         msg = "You Lose!";
       } else if (this.dealerPts > 21) {
         msg = "You Win!";
       } else if (this.playerPts == this.dealerPts) {
-        msg = "Tie!";
+        if (this.playerPts == 21) {
+          msg = "double Blackjack!";
+          this.doubleBlackJck = "bg-gradient-to-r from-red-400 to-black text-white animation-scaleUp";
+        } else {
+          msg = "Tie!";
+        }
       } else if (this.playerPts < this.dealerPts) {
         msg = "You Lose!";
       } else if (this.playerPts > this.dealerPts) {
@@ -331,13 +345,14 @@ export default defineComponent({
       this.dealerHiddenValue = 0;
       this.playerCardsOnField = 0;
       this.dealerHiddenCardImgSrc = "/src/assets/cards/BACK.png";
+      this.doubleBlackJck = "";
+      this.deck = []; // clear deck
       this.dealerCardImgSrc = [];
       this.playerCardImgSrc = [];
       this.hidden = "";
       this.canHit = true;
       this.restructure = true;  // show loading / restructure screen 
 
-      this.deck = []; // clear deck
       this.buildDeck(); // refills the deck
       this.shuffleDeck(); // shuffle new
       this.startGame();
@@ -356,5 +371,46 @@ export default defineComponent({
 .restructure {
   background-color: #818181;
   opacity: .8;
+}
+
+.animation-scaleUp {
+  -webkit-animation: scaleUp 2.5s ease 0s infinite;
+  -moz-animation: scaleUp 2.5s ease 0s infinite;
+  -ms-animation: scaleUp 2.5s ease 0s infinite;
+  animation: scaleUp 2.5s ease 0s infinite;
+}
+
+@-webkit-keyframes scaleUp {
+  0% {
+    transform: rotate(1.45);
+    transform: scale(1.25);
+  }
+
+  50% {
+    transform: rotate(1.45);
+    transform: scale(2);
+  }
+
+  100% {
+    transform: rotate(1.45);
+    transform: scale(1.25);
+  }
+}
+
+@keyframes scaleUp {
+  0% {
+    transform: rotate(1.45);
+    transform: scale(1.25);
+  }
+
+  50% {
+    transform: rotate(1.45);
+    transform: scale(2);
+  }
+
+  100% {
+    transform: rotate(1.45);
+    transform: scale(1.25);
+  }
 }
 </style>
