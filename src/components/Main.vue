@@ -1,8 +1,8 @@
 <template>
   <!-- Result - popup -->
   <div v-if="showPopup">
-    <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-30">
-      <div @click="reset()" class="absolute top-0 bottom-0 left-0 right-0 z-40"></div>
+    <section class="h-screen w-screen bg-gray-700 fixed top-0 opacity-75 z-40">
+      <div @click="reset()" class="absolute inset-0 z-40"></div>
     </section>
     <div class="w-full md:w-1/2 fixed top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 z-40">
       <div class="flex h-full">
@@ -84,7 +84,7 @@ export default defineComponent({
       playerCardImgSrc: string[] = [],
       deck: string[] = [];
 
-    let hidden: any = "";
+    let hidden: any = ""; // string | undefinded
 
     let canHit: boolean = true,
       showPopup: boolean = false,
